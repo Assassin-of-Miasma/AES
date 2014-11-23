@@ -4,9 +4,19 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GuiController">
    <children>
-      <Button fx:id="btn_test" layoutX="224.0" layoutY="73.0" mnemonicParsing="false" onAction="#onBtnClick" text="Button" />
+      <Button layoutX="14.0" layoutY="38.0" mnemonicParsing="false" onAction="#onChooseLoadFile" text="Choose Open File" />
+      <Label fx:id="lbl_openFile" layoutX="14.0" layoutY="14.0" text="-" />
+      <RadioButton layoutX="30.0" layoutY="118.0" mnemonicParsing="false" text="128">
+         <toggleGroup>
+            <ToggleGroup fx:id="group_keyLength" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton layoutX="30.0" layoutY="144.0" mnemonicParsing="false" text="192" toggleGroup="$group_keyLength" />
+      <RadioButton layoutX="30.0" layoutY="171.0" mnemonicParsing="false" text="256" toggleGroup="$group_keyLength" />
+      <Label layoutX="14.0" layoutY="88.0" text="Key Length (in bits)" />
+      <Label fx:id="lbl_saveFile" layoutX="300.0" layoutY="14.0" text="-" />
+      <Button layoutX="300.0" layoutY="38.0" mnemonicParsing="false" onAction="#onChooseSaveFile" text="Choose Save File" />
    </children>
 </AnchorPane>

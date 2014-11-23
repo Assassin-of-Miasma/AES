@@ -35,6 +35,10 @@ public class StartAes extends Application {
 		StartAes.primaryStage = primaryStage;
 	}
 	
+	public static Stage getPrimaryStage() {
+		return primaryStage;
+	}
+	
 	public static void setScene(Initializable initializable) {
 		setScene(primaryStage, initializable);
 	}
