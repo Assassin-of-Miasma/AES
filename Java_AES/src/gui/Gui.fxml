@@ -1,22 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
    <children>
-      <Button layoutX="14.0" layoutY="38.0" mnemonicParsing="false" onAction="#onChooseLoadFile" text="Choose Open File" />
-      <Label fx:id="lbl_openFile" layoutX="14.0" layoutY="14.0" text="-" />
-      <RadioButton layoutX="30.0" layoutY="118.0" mnemonicParsing="false" text="128">
-         <toggleGroup>
-            <ToggleGroup fx:id="group_keyLength" />
-         </toggleGroup>
-      </RadioButton>
-      <RadioButton layoutX="30.0" layoutY="144.0" mnemonicParsing="false" text="192" toggleGroup="$group_keyLength" />
-      <RadioButton layoutX="30.0" layoutY="171.0" mnemonicParsing="false" text="256" toggleGroup="$group_keyLength" />
-      <Label layoutX="14.0" layoutY="88.0" text="Key Length (in bits)" />
-      <Label fx:id="lbl_saveFile" layoutX="300.0" layoutY="14.0" text="-" />
-      <Button layoutX="300.0" layoutY="38.0" mnemonicParsing="false" onAction="#onChooseSaveFile" text="Choose Save File" />
+      <HBox layoutX="286.0" layoutY="-26.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <TitledPane prefHeight="325.0" prefWidth="342.0" text="What to process">
+                     <content>
+                        <VBox prefHeight="343.0" prefWidth="340.0" spacing="10.0">
+                           <children>
+                              <RadioButton fx:id="rb_process_file" mnemonicParsing="false" selected="true" text="File">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="process" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <Label fx:id="lbl_openFile" text="-" />
+                              <Button mnemonicParsing="false" onAction="#onChooseInputFile" text="Choose Input File" />
+                              <Label fx:id="lbl_saveFile" text="-" />
+                              <Button mnemonicParsing="false" onAction="#onChooseOutputFile" text="Choose Output File" />
+                              <RadioButton fx:id="rb_process_text" mnemonicParsing="false" text="Text" toggleGroup="$process" />
+                              <HBox prefHeight="120.0" prefWidth="330.0" spacing="10.0">
+                                 <children>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Input Text" />
+                                          <TextArea fx:id="txta_input" prefHeight="200.0" prefWidth="200.0" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Output Text" />
+                                          <TextArea fx:id="txta_output" prefHeight="200.0" prefWidth="200.0" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </TitledPane>
+                  <HBox spacing="10.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#onEncryptClick" text="Encrypt" />
+                        <Button mnemonicParsing="false" onAction="#onDecryptClick" text="Decrypt" />
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox>
+               <children>
+                  <TitledPane text="Initial Vector">
+                     <content>
+                        <VBox spacing="10.0">
+                           <children>
+                              <RadioButton fx:id="rb_iv_random" mnemonicParsing="false" text="Use random Initial Vector">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="initialVector" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton fx:id="rb_iv_own" mnemonicParsing="false" selected="true" text="Enter own Initial Vector" toggleGroup="$initialVector" />
+                              <TextField fx:id="txt_initalVector" />
+                              <HBox>
+                                 <children>
+                                    <Label text="Used Initial Vector: " />
+                                    <Label fx:id="lbl_usedIv" text="-" />
+                                 </children>
+                              </HBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </TitledPane>
+                  <TitledPane text="Key">
+                     <content>
+                        <VBox spacing="10.0">
+                           <children>
+                              <RadioButton fx:id="rb_key_128" mnemonicParsing="false" text="Random 128 Bit">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="key" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton fx:id="rb_key_192" mnemonicParsing="false" text="Random 192 Bit" toggleGroup="$key" />
+                              <RadioButton fx:id="rb_key_256" mnemonicParsing="false" text="Random 256 Bit" toggleGroup="$key" />
+                              <RadioButton fx:id="rb_key_own" mnemonicParsing="false" selected="true" text="Enter own Key" toggleGroup="$key" />
+                              <TextField fx:id="txt_key" />
+                              <HBox>
+                                 <children>
+                                    <Label text="Used Key: " />
+                                    <Label fx:id="lbl_usedKey" text="-" />
+                                 </children>
+                              </HBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </TitledPane>
+                  <TitledPane text="Mode">
+                     <content>
+                        <VBox spacing="10.0">
+                           <children>
+                              <RadioButton fx:id="rb_mode_cbc" mnemonicParsing="false" selected="true" text="CBC">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="mode" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton fx:id="rb_mode_ecb" mnemonicParsing="false" text="ECB" toggleGroup="$mode" />
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </TitledPane>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
    </children>
 </AnchorPane>
