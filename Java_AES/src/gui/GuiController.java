@@ -3,8 +3,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Observable;
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -13,10 +17,14 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import aes.AESCrypt;
 import aes.AESCrypt.InvalidArgumentException;
@@ -25,14 +33,8 @@ import application.StartAes;
 
 public class GuiController extends Observable implements Initializable {
 	
-	@FXML private RadioButton rb_process_file;
-	@FXML private Label lbl_saveFile;
-	@FXML private Label lbl_openFile;
-	
-	@FXML private RadioButton rb_process_text;
-	@FXML private TextArea txta_input;
-	@FXML private TextArea txta_output;
-	
+	@FXML private Label lbl_encryptedFile;
+	@FXML private Label lbl_decryptedFile;	
 	
 	@FXML private RadioButton rb_iv_random;
 	@FXML private RadioButton rb_iv_own;
@@ -48,6 +50,12 @@ public class GuiController extends Observable implements Initializable {
 	
 	@FXML private RadioButton rb_mode_cbc;
 	@FXML private RadioButton rb_mode_ecb;
+	
+	@FXML private AnchorPane anchor_diagram;
+	
+	private BarChart<String, Number> chart;
+	private CategoryAxis bytes = new CategoryAxis();
+	private NumberAxis count = new NumberAxis();
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -75,20 +83,27 @@ public class GuiController extends Observable implements Initializable {
 				}
 			}
 		});
+		
+		chart = new BarChart<String, Number>(bytes, count);
+		AnchorPane.setTopAnchor(chart, 0.0);
+		AnchorPane.setLeftAnchor(chart, 0.0);
+		AnchorPane.setRightAnchor(chart, 0.0);
+		AnchorPane.setBottomAnchor(chart, 0.0);
+		anchor_diagram.getChildren().add(chart);
 	}
 	
-	private File file_input;
-	private File file_output;
+	private File file_decrypted;
+	private File file_encrypted;
 	
 	@FXML
 	private void onChooseInputFile() {
 		FileChooser chooser = new FileChooser();
-		File file = chooser.showOpenDialog(StartAes.getPrimaryStage());
+		File file = chooser.showSaveDialog(StartAes.getPrimaryStage());
 		if(file == null) {
 			return;
 		}
-		lbl_openFile.setText(file.getAbsolutePath());
-		file_input = file;
+		lbl_decryptedFile.setText(file.getAbsolutePath());
+		file_decrypted = file;
 	}
 	
 	@FXML
@@ -98,12 +113,21 @@ public class GuiController extends Observable implements Initializable {
 		if(file == null) {
 			return;
 		}
-		lbl_saveFile.setText(file.getAbsolutePath());
-		file_output = file;
+		lbl_encryptedFile.setText(file.getAbsolutePath());
+		file_encrypted = file;
 	}
 	
 	@FXML
 	private void onEncryptClick() {
+		process(true);
+	}
+	
+	@FXML
+	private void onDecryptClick() {
+		process(false);
+	}
+	
+	private void process(boolean encrypt) {
 		int mode = 0;
 		if(rb_mode_cbc.isSelected()) {
 			mode = AESCrypt.CBC_MODE;
@@ -153,25 +177,61 @@ public class GuiController extends Observable implements Initializable {
 			e.printStackTrace();
 		}
 		
-		if(rb_process_file.isSelected()) {
-			if(file_input != null && file_output != null) {
-				try {
-					aes.streamEncrypt(new FileInputStream(file_input), new FileOutputStream(file_output));
+		if(file_decrypted != null && file_encrypted != null) {
+			if(encrypt) {
+				try (FileInputStream in = new FileInputStream(file_decrypted); FileOutputStream out = new FileOutputStream(file_encrypted);) {
+					aes.streamEncrypt(in, out);
 				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				try (FileInputStream in = new FileInputStream(file_encrypted); FileOutputStream out = new FileOutputStream(file_decrypted);) {
+					aes.streamDecrypt(in, out);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-		} else if(rb_process_text.isSelected()) {
-			String txt = txta_input.getText();
-			aes.setText(txt.getBytes());
-			aes.encrypt();
-			txta_output.setText(new String(aes.getText()));
 		}
+		makeDiagram(aes);
 	}
 	
-	@FXML
-	private void onDecryptClick() {
+	private void makeDiagram(AESCrypt aes) {
+		chart.getData().clear();
 		
+		XYChart.Series<String, Number> original = new XYChart.Series<String, Number>();
+		original.setName("Original");
+		XYChart.Series<String, Number> cipher = new XYChart.Series<String, Number>();
+		cipher.setName("Cipher");
+		
+		if(aes != null) {
+			List<Byte> bytes = new ArrayList<Byte>(aes.getOrigFreq().keySet());
+			Collections.sort(bytes);
+			for(Byte b : bytes) {
+				original.getData().add(new XYChart.Data<String, Number>((b < 0 ? 256 + b : b)+"", aes.getOrigFreq().get(b)));
+			}
+			bytes = new ArrayList<Byte>(aes.getCiphFreq().keySet());
+			Collections.sort(bytes);
+			for(Byte b : bytes) {
+				cipher.getData().add(new XYChart.Data<String, Number>((b < 0 ? 256 + b : b)+"", aes.getCiphFreq().get(b)));
+			}
+		} else {
+			System.err.println("aes is null");
+		}
+		chart.getData().add(original);
+		chart.getData().add(cipher);
 	}
+	
+//	private Map<Byte, Integer> generateRandomHashMap() {
+//		HashMap<Byte, Integer> map = new HashMap<Byte, Integer>();
+//		Random random = new Random(new Date().getTime());
+//		for(byte b=0; b>=0; ++b) {
+//			map.put(b, random.nextInt(1000));
+//		}
+//		return map;
+//	}
 	
 }
