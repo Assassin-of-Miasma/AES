@@ -13,7 +13,7 @@
          <children>
             <VBox>
                <children>
-                  <TitledPane text="What to process">
+                  <TitledPane text="Files">
                      <content>
                         <VBox spacing="10.0">
                            <children>

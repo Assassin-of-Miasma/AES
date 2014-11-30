@@ -92,18 +92,18 @@ public class GuiController extends Observable implements Initializable {
 		anchor_diagram.getChildren().add(chart);
 	}
 	
-	private File file_decrypted;
-	private File file_encrypted;
+	private File file_input;
+	private File file_output;
 	
 	@FXML
 	private void onChooseInputFile() {
 		FileChooser chooser = new FileChooser();
-		File file = chooser.showSaveDialog(StartAes.getPrimaryStage());
+		File file = chooser.showOpenDialog(StartAes.getPrimaryStage());
 		if(file == null) {
 			return;
 		}
 		lbl_decryptedFile.setText(file.getAbsolutePath());
-		file_decrypted = file;
+		file_input = file;
 	}
 	
 	@FXML
@@ -114,7 +114,7 @@ public class GuiController extends Observable implements Initializable {
 			return;
 		}
 		lbl_encryptedFile.setText(file.getAbsolutePath());
-		file_encrypted = file;
+		file_output = file;
 	}
 	
 	@FXML
@@ -177,23 +177,17 @@ public class GuiController extends Observable implements Initializable {
 			e.printStackTrace();
 		}
 		
-		if(file_decrypted != null && file_encrypted != null) {
-			if(encrypt) {
-				try (FileInputStream in = new FileInputStream(file_decrypted); FileOutputStream out = new FileOutputStream(file_encrypted);) {
+		if(file_input != null && file_output != null) {
+			try (FileInputStream in = new FileInputStream(file_input); FileOutputStream out = new FileOutputStream(file_output);) {
+				if(encrypt) {
 					aes.streamEncrypt(in, out);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				try (FileInputStream in = new FileInputStream(file_encrypted); FileOutputStream out = new FileOutputStream(file_decrypted);) {
+				} else {
 					aes.streamDecrypt(in, out);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 		makeDiagram(aes);
