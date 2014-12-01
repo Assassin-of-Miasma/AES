@@ -2,7 +2,7 @@ package aes;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * Interface for the AESCrypt-Class
@@ -23,61 +23,61 @@ public interface AESCryptInterface {
     /**
      * Decrypts the text.
      */
-    void decrypt();
+    public void decrypt();
 
     /**
      * Encrypts the text.
      */
-    void encrypt();
+    public void encrypt();
 
     /**
      * Gets the collected statistics of byte-frequencies collected by this
      * instance.
-     * @return A <code>HashMap&lt;Byte, Integer&gt;</code> containing the
+     * @return A <code>TreeMap&lt;Byte, Integer&gt;</code> containing the
      * accumulated frequencies of all bytes produced by encrypting the input
      * texts.
      */
-    HashMap<Byte, Integer> getCiphFreq();
+    public TreeMap<Integer, Integer> getCiphFreq();
 
     /**
      * Gets the amount of bytes processed by this instance since creation or the
      * last reset.
      * @return the amount of processed bytes
      */
-    int getCount();
+    public int getCount();
 
     /**
      * Gets the collected statistics of byte-frequencies collected by this
      * instance.
-     * @return A <code>HashMap&lt;Byte, Integer&gt;</code> containing the
+     * @return A <code>TreeMap&lt;Byte, Integer&gt;</code> containing the
      * accumulated frequencies of all bytes encountered while processing the
      * input texts.
      */
-    HashMap<Byte, Integer> getOrigFreq();
+    public TreeMap<Integer, Integer> getOrigFreq();
 
     /**
      * Gets the bytes stored for/after encryption/decryption.
      * @return the stored bytes
      */
-    byte[] getText();
+    public byte[] getText();
 
     /**
      * Resets the statistics of byte-frequencies collected by this instance by
-     * removing all entries from the HashMaps.
+     * removing all entries from the TreeMaps.
      */
-    void resetStats();
+    public void resetStats();
 
     /**
      * Sets the initial vector (IV) used for CBC.
      * @param in The initial vector to be used.
      */
-    void setIV(byte[] in);
+    public void setIV(byte[] in);
 
     /**
      * Sets the text to be encrypted or decrypted.
      * @param in The text to be encrypted or decrypted.
      */
-    void setText(byte[] in);
+    public void setText(byte[] in);
 
     /**
      * Decrypts the bytes of the input stream and writes them to the output
@@ -85,7 +85,7 @@ public interface AESCryptInterface {
      * @param in the input stream to be decrypted
      * @param out the output stream the decrypted data should be written to
      */
-    void streamDecrypt(InputStream in, OutputStream out);
+    public void streamDecrypt(InputStream in, OutputStream out);
 
     /**
      * Encrypts the bytes of the input stream and writes them to the output
@@ -95,6 +95,6 @@ public interface AESCryptInterface {
      * @param in the input stream to read the data to be encrypted from
      * @param out the output stream the encrypted data should be put
      */
-    void streamEncrypt(InputStream in, OutputStream out);
+    public void streamEncrypt(InputStream in, OutputStream out);
     
 }

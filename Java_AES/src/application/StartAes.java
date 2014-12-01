@@ -56,6 +56,7 @@ public class StartAes extends Application {
 			Scene scene = new Scene(root);
 //			scene.getStylesheets().add("application/gui/style.css");
 			stage.setScene(scene);
+			stage.show();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

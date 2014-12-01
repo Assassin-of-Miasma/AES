@@ -3,7 +3,7 @@ package aes;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * Class for AES Encryption and Decryption
@@ -60,10 +60,10 @@ public class AESCrypt implements AESCryptInterface {
     private final int nr;
     private final int mode;
     private int count;
-    private final HashMap<Byte, Integer> origFreq = new HashMap<>();
-    private final HashMap<Byte, Integer> ciphFreq = new HashMap<>();
+    private final TreeMap<Integer, Integer> origFreq = new TreeMap<>();
+    private final TreeMap<Integer, Integer> ciphFreq = new TreeMap<>();
     
-    public class InvalidArgumentException extends Exception {
+    public class InvalidArgumentException extends Exception{
 
         private InvalidArgumentException(String msg) {
             super(msg);
@@ -137,6 +137,46 @@ public class AESCrypt implements AESCryptInterface {
         this(key.getBytes(), null, AESCrypt.ECB_MODE);
     }
     
+    
+    
+    /**
+     * Constructor for AESCrypt.<br />
+     * The first parameter is the key to be used for encryption and decryption,
+     * represented as String. The used mode for
+     * encryption ist the CCB-Mode. The call of this function is equivalent to
+     * <blockquote><code>AESCrypt(key.getBytes(), iv, AESCrypt.ECB_MODE);</code></blockquote>
+     * @param key - The key to be used for encryption and decryption as String, 
+     * allowed lengths: 16, 24 or 32 Byte
+     * @param iv - The initial vector to be used for CBC Mode
+     * @throws InvalidArgumentException - if the length of the key is invalid. 
+     * According to the specification the key length has to be 128 bit, 192 bit 
+     * or 256 bit, so the String used as parameter has to have 16, 24 or 32 
+     * Byte
+     */
+    public AESCrypt(String key, byte[] iv) throws InvalidArgumentException{
+        this(key.getBytes(), iv, AESCrypt.CBC_MODE);
+    }
+    
+    
+    
+    /**
+     * Constructor for AESCrypt.<br />
+     * The parameter is the key to be used for encryption and decryption,
+     * represented as array of bytes. The used mode for
+     * encryption ist the CCB-Mode. The call of this function is equivalent to
+     * <blockquote><code>AESCrypt(key.getBytes(), iv, AESCrypt.ECB_MODE);</code></blockquote>
+     * @param key - The key to be used for encryption and decryption as array of bytes, 
+     * allowed lengths: 16, 24 or 32 Byte
+     * @param iv - The initial vector to be used for CBC Mode
+     * @throws InvalidArgumentException - if the length of the key is invalid. 
+     * According to the specification the key length has to be 128 bit, 192 bit 
+     * or 256 bit, so the String used as parameter has to have 16, 24 or 32 
+     * Byte
+     */
+    public AESCrypt(byte[] key, byte[] iv) throws InvalidArgumentException{
+        this(key, iv, AESCrypt.CBC_MODE);
+    }
+    
     /**
      * Constructor for AESCrypt.<br />
      * The parameter is the key to be used for encryption and decryption,
@@ -180,7 +220,7 @@ public class AESCrypt implements AESCryptInterface {
      * @throws InvalidArgumentException if a parameter fails to meet the 
      * limitations given by the specification
      */
-    public AESCrypt(byte[] key, byte[] iv, int mode) throws InvalidArgumentException {
+    public AESCrypt(byte[] key, byte[] iv, int mode) throws InvalidArgumentException{
         if (mode != AESCrypt.ECB_MODE && mode != AESCrypt.CBC_MODE){
             throw new InvalidArgumentException("Invalid mode");
         }
@@ -440,14 +480,14 @@ public class AESCrypt implements AESCryptInterface {
         
     }
     
-    private void getStat(byte[][] buf, HashMap<Byte, Integer> hash){
+    private void getStat(byte[][] buf, TreeMap<Integer, Integer> hash){
         this.count += buf.length* buf[0].length;
         for (int row = 0; row < buf.length; row++){
             for (int col = 0; col < buf[0].length; col++){
-                if (hash.containsKey(buf[row][col])){
-                    hash.put(buf[row][col], hash.get(buf[row][col])+1);
+                if (hash.containsKey(0xFF & buf[row][col])){
+                    hash.put(0xFF & buf[row][col], hash.get(0xFF & buf[row][col])+1);
                 } else {
-                    hash.put(buf[row][col], 1);
+                    hash.put(0xFF & buf[row][col], 1);
                 }
             }
         }
@@ -455,7 +495,7 @@ public class AESCrypt implements AESCryptInterface {
     
     /**
      * Resets the statistics of byte-frequencies collected by this instance by 
-     * removing all entries from the HashMaps.
+     * removing all entries from the TreeMaps.
      */
     @Override
     public void resetStats(){
@@ -467,24 +507,24 @@ public class AESCrypt implements AESCryptInterface {
     /**
      * Gets the collected statistics of byte-frequencies collected by this 
      * instance.
-     * @return A <code>HashMap&lt;Byte, Integer&gt;</code> containing the 
+     * @return A <code>TreeMap&lt;Byte, Integer&gt;</code> containing the 
      * accumulated frequencies of all bytes encountered while processing the 
      * input texts.
      */
     @Override
-    public HashMap<Byte, Integer> getOrigFreq() {
+    public TreeMap<Integer, Integer> getOrigFreq() {
         return origFreq;
     }
 
     /**
      * Gets the collected statistics of byte-frequencies collected by this 
      * instance.
-     * @return A <code>HashMap&lt;Byte, Integer&gt;</code> containing the 
+     * @return A <code>TreeMap&lt;Byte, Integer&gt;</code> containing the 
      * accumulated frequencies of all bytes produced by encrypting the input 
      * texts.
      */
     @Override
-    public HashMap<Byte, Integer> getCiphFreq() {
+    public TreeMap<Integer, Integer> getCiphFreq() {
         return ciphFreq;
     }
 

@@ -7,27 +7,40 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.GuiController">
    <children>
-      <HBox layoutX="286.0" layoutY="-26.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
+      <SplitPane dividerPositions="0.3938584779706275" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
             <VBox>
                <children>
-                  <TitledPane text="Files">
-                     <content>
-                        <VBox spacing="10.0">
+                  <TitledPane text="Files" />
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#switchIo">
+                           <graphic>
+                              <ImageView fitHeight="50.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@swap-md.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <VBox spacing="5.0">
                            <children>
-                              <Label fx:id="lbl_decryptedFile" text="-" />
+                              <Label fx:id="lbl_inputFile" text="-" />
                               <Button mnemonicParsing="false" onAction="#onChooseInputFile" text="Choose Input File" />
-                              <Label fx:id="lbl_encryptedFile" text="-" />
+                              <Label fx:id="lbl_outputFile" text="-" />
                               <Button mnemonicParsing="false" onAction="#onChooseOutputFile" text="Choose Output File" />
                            </children>
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
                         </VBox>
-                     </content>
-                  </TitledPane>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </HBox>
                   <TitledPane text="Initial Vector">
                      <content>
                         <VBox spacing="10.0">
@@ -38,11 +51,10 @@
                                  </toggleGroup>
                               </RadioButton>
                               <RadioButton fx:id="rb_iv_own" mnemonicParsing="false" selected="true" text="Enter own Initial Vector" toggleGroup="$initialVector" />
-                              <TextField fx:id="txt_initalVector" />
-                              <HBox>
+                              <HBox alignment="CENTER_LEFT">
                                  <children>
                                     <Label text="Used Initial Vector: " />
-                                    <Label fx:id="lbl_usedIv" text="-" />
+                                    <TextField fx:id="txt_initalVector" />
                                  </children>
                               </HBox>
                            </children>
@@ -64,11 +76,10 @@
                               <RadioButton fx:id="rb_key_192" mnemonicParsing="false" text="Random 192 Bit" toggleGroup="$key" />
                               <RadioButton fx:id="rb_key_256" mnemonicParsing="false" text="Random 256 Bit" toggleGroup="$key" />
                               <RadioButton fx:id="rb_key_own" mnemonicParsing="false" selected="true" text="Enter own Key" toggleGroup="$key" />
-                              <TextField fx:id="txt_key" />
-                              <HBox>
+                              <HBox alignment="CENTER_LEFT">
                                  <children>
                                     <Label text="Used Key: " />
-                                    <Label fx:id="lbl_usedKey" text="-" />
+                                    <TextField fx:id="txt_key" />
                                  </children>
                               </HBox>
                            </children>
@@ -103,16 +114,15 @@
                               <Button mnemonicParsing="false" onAction="#onDecryptClick" text="Decrypt" />
                            </children>
                            <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </padding>
                         </HBox>
                     </content>
                   </TitledPane>
                </children>
             </VBox>
-            <VBox />
-            <AnchorPane fx:id="anchor_diagram" prefWidth="600.0" HBox.hgrow="ALWAYS" />
-         </children>
-      </HBox>
+            <AnchorPane fx:id="anchor_diagram" prefWidth="500.0" />
+        </items>
+      </SplitPane>
    </children>
 </AnchorPane>
