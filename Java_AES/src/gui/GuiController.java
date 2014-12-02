@@ -10,18 +10,27 @@ import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import aes.AESCrypt;
-import aes.AESCrypt.InvalidArgumentException;
+
+import javax.swing.JOptionPane;
+
+import aescrypt.AESCrypt;
+import aescrypt.AESCrypt.InvalidArgumentException;
 import application.RandomString;
 import application.StartAes;
 
@@ -121,7 +130,7 @@ public class GuiController extends Observable implements Initializable {
 	
 	private void process(boolean encrypt) {
 		if(file_output == null || file_input == null) {
-			System.err.println("No files chosen.");
+			JOptionPane.showMessageDialog(null, "You don't have chosen the required file.", "Choose Files!", JOptionPane.WARNING_MESSAGE);
 		}
 		
 		int mode = 0;
@@ -158,13 +167,13 @@ public class GuiController extends Observable implements Initializable {
 			try {
 				aes = new AESCrypt(key, iv);
 			} catch (InvalidArgumentException e) {
-				System.err.println(e.getMessage());
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid Argument Exception!", JOptionPane.ERROR_MESSAGE);
 			}
 		} else {
 			try {
 				aes = new AESCrypt(key);
 			} catch (InvalidArgumentException e) {
-				System.err.println(e.getMessage());
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid Argument Exception!", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		
@@ -172,13 +181,17 @@ public class GuiController extends Observable implements Initializable {
 			try (FileInputStream in = new FileInputStream(file_input); FileOutputStream out = new FileOutputStream(file_output);) {
 				if(encrypt) {
 					aes.streamEncrypt(in, out);
-					System.out.println("Encryption succeeded");
+					JOptionPane.showMessageDialog(null, "You encryption was successful", "Encryption succeeded!", JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					aes.streamDecrypt(in, out);
-					System.out.println("Encryption succeeded");
+					JOptionPane.showMessageDialog(null, "You decryption was successful", "Decryption succeeded!", JOptionPane.INFORMATION_MESSAGE);
 				}
-				txt_initalVector.setText(new String(iv));
-				txt_key.setText(new String(key));
+				if(iv != null) {
+					txt_initalVector.setText(new String(iv));
+				}
+				if(key != null) {
+					txt_key.setText(new String(key));
+				}
 				makeDiagram(aes);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -186,7 +199,7 @@ public class GuiController extends Observable implements Initializable {
 				e.printStackTrace();
 			}
 		} else {
-			System.err.println("Operation failed");
+			JOptionPane.showMessageDialog(null, "You operation was not successful", "Operation failed!", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -195,20 +208,24 @@ public class GuiController extends Observable implements Initializable {
 			chart.getData().clear();
 			
 			XYChart.Series<Number, Number> original = new XYChart.Series<Number, Number>();
-			original.setName("Original");
+			original.setName("Input");
 			XYChart.Series<Number, Number> cipher = new XYChart.Series<Number, Number>();
-			cipher.setName("Cipher");
+			cipher.setName("Output");
 			
 			for(int b : aes.getOrigFreq().keySet()) {
-				original.getData().add(new XYChart.Data<Number, Number>(b, aes.getOrigFreq().get(b)));
+				Data<Number, Number> data = new XYChart.Data<Number, Number>(b, aes.getOrigFreq().get(b));
+				original.getData().add(data);
+				data.setNode(new HoveredThresholdNode(b, aes.getOrigFreq().get(b))); 
 			}
 			for(int b : aes.getCiphFreq().keySet()) {
-				cipher.getData().add(new XYChart.Data<Number, Number>(b, aes.getCiphFreq().get(b)));
+				Data<Number, Number> data = new XYChart.Data<Number, Number>(b, aes.getCiphFreq().get(b));
+				cipher.getData().add(data);
+				data.setNode(new HoveredThresholdNode(b, aes.getCiphFreq().get(b))); 
 			}
 			chart.getData().add(original);
 			chart.getData().add(cipher);
 		} else {
-			System.err.println("Could not create Diagram");
+			JOptionPane.showMessageDialog(null, "Could not create Diagram", "Operation failed!", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 	
@@ -237,5 +254,49 @@ public class GuiController extends Observable implements Initializable {
 //		}
 //		return map;
 //	}
+	
+	 /** a node which displays a value on hover, but is otherwise empty */
+	class HoveredThresholdNode extends StackPane {
+		HoveredThresholdNode(int key, int priorValue, int value) {
+			setPrefSize(15, 15);
+	 
+			final Label label = createDataThresholdLabel(key, priorValue, value);
+	 
+			setOnMouseEntered(new EventHandler<MouseEvent>() {
+				@Override public void handle(MouseEvent mouseEvent) {
+					getChildren().setAll(label);
+					setCursor(Cursor.NONE);
+					toFront();
+				}
+			});
+			setOnMouseExited(new EventHandler<MouseEvent>() {
+				@Override public void handle(MouseEvent mouseEvent) {
+					getChildren().clear();
+					setCursor(Cursor.CROSSHAIR);
+				}
+			});
+		}
+		
+		public HoveredThresholdNode(int key, int value) {
+			this(key, value, value);
+		}
+	 
+		private Label createDataThresholdLabel(int key, int priorValue, int value) {
+			final Label label = new Label(key+" ("+(char)key+"): "+value + "");
+			label.getStyleClass().addAll("default-color0", "chart-line-symbol", "chart-series-line");
+			label.setStyle("-fx-font-size: 15; /*-fx-font-weight: bold;*/");
+			
+			if (priorValue == 0) {
+				label.setTextFill(Color.DARKGRAY);
+			} else if (value > priorValue) {
+				label.setTextFill(Color.FORESTGREEN);
+			} else {
+				label.setTextFill(Color.FIREBRICK);
+			}
+	 
+			label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
+			return label;
+		}
+	}
 	
 }

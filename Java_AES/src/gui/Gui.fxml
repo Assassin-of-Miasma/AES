@@ -20,7 +20,7 @@
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@swap-md.png" />
+                                    <Image url="@/gui/swap-md.png" />
                                  </image>
                               </ImageView>
                            </graphic>

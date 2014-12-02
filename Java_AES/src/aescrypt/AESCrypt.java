@@ -1,4 +1,4 @@
-package aes;
+package aescrypt;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +8,7 @@ import java.util.TreeMap;
 /**
  * Class for AES Encryption and Decryption
  * @author Philipp Kolnhofer
- * @version 1.4
+ * @version 1.8
  */
 public class AESCrypt implements AESCryptInterface {
     
@@ -63,7 +63,7 @@ public class AESCrypt implements AESCryptInterface {
     private final TreeMap<Integer, Integer> origFreq = new TreeMap<>();
     private final TreeMap<Integer, Integer> ciphFreq = new TreeMap<>();
     
-    public class InvalidArgumentException extends Exception{
+    public final class InvalidArgumentException extends Exception{
 
         private InvalidArgumentException(String msg) {
             super(msg);
@@ -586,7 +586,9 @@ public class AESCrypt implements AESCryptInterface {
             printTable(textTable);
             System.out.println("-----------");*/
         getStat(this.textTable, this.ciphFreq);
-        replicateTable(this.textTable, this.iv);
+        if (this.mode == AESCrypt.CBC_MODE){
+            replicateTable(this.textTable, this.iv);
+        }
     }
     
     /**
@@ -598,6 +600,7 @@ public class AESCrypt implements AESCryptInterface {
             /*System.out.println("Text (Origin):");
             printTable(textTable);
             System.out.println("-----------");*/
+        getStat(this.textTable, this.origFreq);
         byte[][] temp = new byte[4][4];
         replicateTable(this.textTable, temp);
         addRoundKey(round--);
@@ -634,6 +637,7 @@ public class AESCrypt implements AESCryptInterface {
             /*System.out.println("after addRoundKey(" + round + "):");
             printTable(textTable);
             System.out.println("-----------");*/
+        getStat(this.textTable, this.ciphFreq);
         if (this.mode == AESCrypt.CBC_MODE){
             combineTextIV();
             replicateTable(temp, this.iv);

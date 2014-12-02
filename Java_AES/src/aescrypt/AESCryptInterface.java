@@ -1,4 +1,4 @@
-package aes;
+package aescrypt;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,7 +7,7 @@ import java.util.TreeMap;
 /**
  * Interface for the AESCrypt-Class
  * @author Philipp Kolnhofer
- * @version 1.1
+ * @version 1.2
  */
 public interface AESCryptInterface {
     
